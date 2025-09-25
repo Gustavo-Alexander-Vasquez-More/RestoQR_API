@@ -1,0 +1,30 @@
+# Endpoints de Ordenes - RestoQR API
+
+POST   /orders/create
+    - Descripción: Crea una nueva orden. Recibe la orden completa como JSON, incluyendo la lista de productos.
+    - Respuesta: Orden creada o mensaje de error.
+
+GET    /orders/find/{id}
+    - Descripción: Busca una orden por su id.
+    - Respuesta: Orden encontrada o mensaje de error.
+
+GET    /orders/findByNumOrden/{numOrden}
+    - Descripción: Busca una orden por su número de orden.
+    - Respuesta: Orden encontrada o mensaje de error.
+
+GET    /orders/
+    - Descripción: Lista todas las órdenes registradas.
+    - Respuesta: Lista de órdenes.
+
+PUT    /orders/update/{id}
+    - Descripción: Actualiza los datos de una orden por su id. Recibe la orden completa como JSON.
+    - Respuesta: Mensaje de éxito o error.
+
+DELETE /orders/delete/{id}
+    - Descripción: Elimina una orden por su id.
+    - Respuesta: Mensaje de éxito o error.
+
+GET    /orders/count
+    - Descripción: Devuelve el número total de órdenes registradas.
+    - Respuesta: Objeto con el campo "count".
+

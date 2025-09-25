@@ -1,0 +1,30 @@
+# Endpoints de Mesas (Table) - RestoQR API
+
+GET    /api/tables
+    - Descripción: Lista todas las mesas registradas.
+    - Respuesta: Lista de objetos Table en formato JSON.
+
+GET    /api/tables/{id}
+    - Descripción: Obtiene la información de una mesa por su id.
+    - Respuesta: Objeto Table si existe, código 404 si no existe.
+
+POST   /api/tables
+    - Descripción: Crea una nueva mesa.
+    - Requiere: Objeto Table en el cuerpo de la petición (JSON).
+    - Respuesta: Objeto Table creado, código 201.
+
+PUT    /api/tables/{id}
+    - Descripción: Actualiza los datos de una mesa existente por id.
+    - Requiere: Objeto Table actualizado en el cuerpo de la petición (JSON).
+    - Respuesta: Objeto Table actualizado, código 404 si no existe.
+
+DELETE /api/tables/{id}
+    - Descripción: Elimina una mesa por su id.
+    - Respuesta: Código 204 si se elimina, código 404 si no existe.
+
+# Modelo Table
+- id: Identificador único de la mesa (Long)
+- number: Identificador visible de la mesa (String, ej. "A1")
+- capacity: Capacidad de la mesa (Integer)
+- status: Estado de la mesa (String, ej. "available", "occupied")
+

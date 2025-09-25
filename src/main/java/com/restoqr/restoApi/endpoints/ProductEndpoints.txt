@@ -1,0 +1,24 @@
+# Endpoints de Productos - RestoQR API
+
+POST   /products/create
+    - Descripción: Crea un nuevo producto. Si la categoría es "drink" crea una bebida, si es "dish" crea un plato.
+    - Requiere: JSON con los campos necesarios según el tipo (bebida o plato).
+    - Respuesta: Producto creado o mensaje de error.
+
+GET    /products/find/{nameProduct}
+    - Descripción: Busca un producto por su nombre.
+    - Respuesta: Producto encontrado o mensaje de error.
+
+GET    /products/
+    - Descripción: Lista todos los productos registrados.
+    - Respuesta: Lista de productos.
+
+PUT    /products/update/{id}
+    - Descripción: Actualiza los datos de un producto por su id. Actualiza campos específicos si es bebida o plato.
+    - Requiere: JSON con los datos actualizados.
+    - Respuesta: Mensaje de éxito o error.
+
+DELETE /products/delete/{id}
+    - Descripción: Elimina un producto por su id.
+    - Respuesta: Mensaje de éxito o error.
+
