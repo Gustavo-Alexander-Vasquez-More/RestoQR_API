@@ -39,7 +39,7 @@ public class ProductoController {
                         (String) payload.get("description"),
                         Double.parseDouble(payload.get("price").toString()),
                         Boolean.parseBoolean(payload.get("available").toString()),
-                        (String) payload.get("subcategory"),
+                        Integer.parseInt(payload.get("subcategory").toString()),
                         Boolean.parseBoolean(payload.get("isVegetarian").toString())
                 );
             } else {
@@ -60,19 +60,7 @@ public class ProductoController {
         }
     }
 
-    @GetMapping("/find/{nameProduct}")
-    public ResponseEntity<?> getProductByName(@PathVariable String nameProduct) {
-        Optional<Product> productOpt = productRepository.findByNameProduct(nameProduct);
-        return productOpt
-                .<ResponseEntity<?>>map(product -> ResponseEntity.ok(product))
-                .orElseGet(() -> {
-                    Map<String, String> response = new HashMap<>();
-                    response.put("mensaje", "El producto no existe.");
-                    return ResponseEntity.status(404).body(response);
-                });
-    }
-
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<?> getProducts() {
         try {
             List<Product> products = productRepository.findAll();
@@ -80,6 +68,20 @@ public class ProductoController {
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("mensaje", "No se pudieron obtener los productos.");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<?> countProducts() {
+        try {
+            long count = productRepository.count();
+            Map<String, Long> response = new HashMap<>();
+            response.put("count", count);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "No se pudo obtener el conteo de productos.");
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -122,7 +124,7 @@ public class ProductoController {
                 ((Drink) product).setStock(Integer.parseInt(payload.get("stock").toString()));
                 ((Drink) product).setIsAlcoholic(Boolean.parseBoolean(payload.get("isAlcoholic").toString()));
             } else if ("dish".equalsIgnoreCase(category) && product instanceof Dish) {
-                ((Dish) product).setSubcategory((String) payload.get("subcategory"));
+                ((Dish) product).setSubcategory(Integer.parseInt(payload.get("subcategory").toString()));
                 ((Dish) product).setIsVegetarian(Boolean.parseBoolean(payload.get("isVegetarian").toString()));
             }
             productRepository.save(product);
@@ -132,6 +134,18 @@ public class ProductoController {
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
             response.put("mensaje", "No se pudo actualizar el producto.");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @GetMapping("/search/{nameProduct}")
+    public ResponseEntity<?> searchProducts(@PathVariable String nameProduct) {
+        try {
+            List<Product> products = productRepository.findByNameProductContainingIgnoreCase(nameProduct);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "No se pudo realizar la búsqueda.");
             return ResponseEntity.status(500).body(response);
         }
     }

@@ -10,4 +10,20 @@ public class Drink extends Product{
         this.stock = stock;
         this.isAlcoholic = isAlcoholic;
     }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setIsAlcoholic(boolean isAlcoholic) {
+        this.isAlcoholic = isAlcoholic;
+    }
+
+    public boolean isAlcoholic() {
+        return isAlcoholic;
+    }
 }

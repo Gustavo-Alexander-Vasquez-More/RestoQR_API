@@ -29,7 +29,7 @@ public class TableController {
                 });
     }
 
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<?> getTables() {
         try {
             List<Table> tables = tableRepository.findAll();
@@ -55,15 +55,15 @@ public class TableController {
         }
     }
 
-    @PostMapping("/create/{number}/{capacity}/{available}")
-    public ResponseEntity<?> createTable(@PathVariable int number, @PathVariable int capacity, @PathVariable boolean available) {
+    @PostMapping("/create/{number}/{capacity}")
+    public ResponseEntity<?> createTable(@PathVariable int number, @PathVariable int capacity) {
         try {
             if (tableRepository.findByNumber(number).isPresent()) {
                 Map<String, String> response = new HashMap<>();
                 response.put("mensaje", "El número de mesa ya existe.");
                 return ResponseEntity.status(409).body(response);
             }
-            Table table = new Table(number, capacity, available);
+            Table table = new Table(number, capacity);
             Table savedTable = tableRepository.save(table);
             return ResponseEntity.status(201).body(savedTable);
         } catch (Exception e) {
@@ -119,3 +119,4 @@ public class TableController {
         }
     }
 }
+

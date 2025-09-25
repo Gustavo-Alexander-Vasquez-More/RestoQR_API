@@ -1,6 +1,10 @@
 package com.restoqr.restoApi.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.Instant;
 
 @Document(collection = "tables")
 public class Table { //Entidad que define cada mesa del restaurante
@@ -8,14 +12,20 @@ public class Table { //Entidad que define cada mesa del restaurante
     private String id;
     private int number; //numero de mesa
     private int capacity; //capacidad de la mesa
-    private boolean available; //disponibilidad de la mesa
+    private boolean available = true; // Por defecto true
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public Table() {}
 
-    public Table(int number, int capacity, boolean available) {
+    public Table(int number, int capacity) {
         this.number = number;
         this.capacity = capacity;
-        this.available = available;
+        this.available = true;
     }
 
     public String getId() {
@@ -48,5 +58,21 @@ public class Table { //Entidad que define cada mesa del restaurante
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -2,16 +2,40 @@
 
 POST   /products/create
     - Descripción: Crea un nuevo producto. Si la categoría es "drink" crea una bebida, si es "dish" crea un plato.
-    - Requiere: JSON con los campos necesarios según el tipo (bebida o plato).
+    - Requiere:
+        Para bebida (drink):
+            {
+                "nameProduct": String,
+                "description": String,
+                "price": Double,
+                "category": "drink",
+                "stock": Integer,
+                "isAlcoholic": Boolean,
+                "available": Boolean
+            }
+        Para plato (dish):
+            {
+                "nameProduct": String,
+                "description": String,
+                "price": Double,
+                "category": "dish",
+                "subcategory": Integer, // 1: entrada, 2: plato principal, 3: postre
+                "isVegetarian": Boolean,
+                "available": Boolean
+            }
     - Respuesta: Producto creado o mensaje de error.
 
-GET    /products/find/{nameProduct}
-    - Descripción: Busca un producto por su nombre.
-    - Respuesta: Producto encontrado o mensaje de error.
+GET    /products/search/{nameProduct}
+    - Descripción: Busca productos cuyo nombre contenga el texto ingresado (búsqueda flexible, insensible a mayúsculas/minúsculas).
+    - Respuesta: Lista de productos coincidentes o mensaje de error.
 
-GET    /products/
+GET    /products/all
     - Descripción: Lista todos los productos registrados.
     - Respuesta: Lista de productos.
+
+GET    /products/count
+    - Descripción: Devuelve el número total de productos registrados.
+    - Respuesta: { "count": número }
 
 PUT    /products/update/{id}
     - Descripción: Actualiza los datos de un producto por su id. Actualiza campos específicos si es bebida o plato.
@@ -21,4 +45,3 @@ PUT    /products/update/{id}
 DELETE /products/delete/{id}
     - Descripción: Elimina un producto por su id.
     - Respuesta: Mensaje de éxito o error.
-

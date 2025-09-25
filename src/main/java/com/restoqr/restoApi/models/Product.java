@@ -1,6 +1,10 @@
 package com.restoqr.restoApi.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.Instant;
 
 @Document(collection = "products")
 public abstract class Product { //Entidad que define cada producto de la carta
@@ -11,6 +15,12 @@ public abstract class Product { //Entidad que define cada producto de la carta
     private double price; //precio del producto
     private String category; //categoria del producto
     private boolean available; //disponibilidad del producto
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     //constructor
     public Product() {}
@@ -69,5 +79,21 @@ public abstract class Product { //Entidad que define cada producto de la carta
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -1,11 +1,11 @@
 package com.restoqr.restoApi.models;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Document(collection = "users")
 public class User { //Entidad que define cada usuario del sistema
@@ -14,14 +14,19 @@ public class User { //Entidad que define cada usuario del sistema
     private String username;
     private String password;
     private Role role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
+
     private boolean online;
 
     public User() {
     }
 
-    public User(String username, String password, Role role, LocalDateTime createdAt, LocalDateTime updatedAt, boolean online) {
+    public User(String username, String password, Role role, Instant createdAt, Instant updatedAt, boolean online) {
         this.username = username;
         this.password = password;
         this.role = role;
@@ -68,19 +73,19 @@ public class User { //Entidad que define cada usuario del sistema
         this.role = role;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
