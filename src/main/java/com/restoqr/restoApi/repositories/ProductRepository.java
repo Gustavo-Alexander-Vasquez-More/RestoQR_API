@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface ProductRepository extends MongoRepository<Product, String> {
     Optional<Product> findByNameProduct(String nameProduct);
     List<Product> findByNameProductContainingIgnoreCase(String nameProduct);
+    // Buscar productos cuya lista de subCategory (ids) contiene el id dado
+    List<Product> findBySubCategoryContaining(String subCategoryId);
 }

@@ -11,6 +11,7 @@ import java.util.List;
 public class Order {
     @Id
     private String id;
+    private String nameClient;
     private int numOrden; //numero de orden
     private int numberTable; //numero de mesa
     private List<ProductOrderDTO> products; //productos pedidos
@@ -25,7 +26,8 @@ public class Order {
 
     public Order() {}
 
-    public Order(int numOrden, int numberTable, List<ProductOrderDTO> products, int status, double totalPrice) {
+    public Order(String nameClient, int numOrden, int numberTable, List<ProductOrderDTO> products, int status, double totalPrice) {
+        this.nameClient = nameClient;
         this.numOrden = numOrden;
         this.numberTable = numberTable;
         this.products = products;
@@ -94,6 +96,14 @@ public class Order {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getNameClient() {
+        return nameClient;
+    }
+
+    public void setNameClient(String nameClient) {
+        this.nameClient = nameClient;
     }
 
     public enum Status {

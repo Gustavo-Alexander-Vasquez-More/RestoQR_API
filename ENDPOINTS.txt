@@ -1,0 +1,202 @@
+Lista de endpoints de la API (organizado, rutas, método, parámetros y body esperados)
+
+1) Users (base: /users)
+
+- GET /users/find/{username}
+  Descripción: Obtener usuario por username.
+  Path params: username (String)
+  Respuesta: UserDTO { id, username, role }
+
+- GET /users/
+  Descripción: Obtener todos los usuarios.
+  Query/Path: ninguno
+  Respuesta: List<UserDTO>
+
+- GET /users/count
+  Descripción: Contar usuarios.
+  Respuesta: { "count": <long> }
+
+- GET /users/exists/{id}
+  Descripción: Verificar existencia por id.
+  Path params: id (String)
+  Respuesta: { "exists": true|false }
+
+- POST /users/create/{username}/{password}/{role}
+  Descripción: Crear nuevo usuario (ruta con path params).
+  Path params: username, password, role (ej: ADMIN, USER, MANAGER)
+  Respuesta: 201 -> UserDTO (sin password)
+  Nota: la contraseña se hashea (PasswordEncoder) antes de guardar.
+
+- POST /users/login
+  Descripción: Login; recibe username y password como RequestParam y devuelve token JWT.
+  Request params (form/url): username, password
+  Respuesta: { "token": "<jwt>" } o 401 { "mensaje": "Usuario o contraseña incorrectos." }
+
+- DELETE /users/delete/{id}
+  Descripción: Eliminar usuario por id.
+  Path params: id
+  Respuesta: mensaje JSON
+
+- PUT /users/update/{id}/{username}/{password}/{role}
+  Descripción: Actualizar usuario por id.
+  Path params: id, username, password, role
+  Respuesta: mensaje JSON
+
+---
+2) Products (base: /products)
+
+- POST /products/create
+  Descripción: Crear un producto (drink, dish o genérico).
+  Body (JSON) esperado (ejemplo):
+    {
+      "nameProduct": "Coca Cola",
+      "photoUrl": "https://...",
+      "description": "Bebida gaseosa",
+      "price": 25.0,
+      "category": "drink", // "drink" o "dish" u otra
+      "subCategory": [ // lista de objetos o ids; cada objeto puede tener id/nombre/photoUrl
+         { "id": "<subId>", "nombre": "Bebidas gasificadas" }
+      ],
+      "available": true,
+      // campos específicos:
+      "stock": 10,            // para drinks
+      "isVegetarian": true    // para dishes
+    }
+  Respuesta: 201 -> Product guardado (contiene id y subCategory como lista de ids internamente)
+  Nota: si en subCategory se envía objeto sin id, el controlador crea la subcategoría y usa su id.
+
+- GET /products/all
+  Descripción: Obtener todos los productos (devuelve la entidad Product tal como está).
+
+- GET /products/count
+  Descripción: Contar productos. Respuesta: { "count": <long> }
+
+- DELETE /products/delete/{id}
+  Descripción: Eliminar producto por id.
+
+- PUT /products/update/{id}
+  Descripción: Actualizar producto por id. Recibe body JSON igual que en create (se usan campos relevantes).
+  Body: Map similar a POST /create (puede incluir subCategory lista)
+
+- GET /products/search/{nameProduct}
+  Descripción: Búsqueda por nombre (containing, case-insensitive).
+  Path params: nameProduct (String)
+
+- GET /products/by-subcategory/{subId}?populate=true|false
+  Descripción: Obtener productos que contienen la subcategoría especificada.
+  Path params: subId (String)
+  Query params: populate (boolean, opcional, default false)
+    - populate=false -> devuelve lista de Product (con subCategory = lista de ids)
+    - populate=true  -> devuelve lista de objetos con subCategories completas (obj SubCategory) y campos relevantes del producto
+
+---
+3) Tables (base: /tables)
+
+- GET /tables/find/{number}
+  Descripción: Buscar mesa por su número (campo number en la entidad).
+  Path params: number (int)
+
+- GET /tables/all
+  Descripción: Obtener todas las mesas.
+
+- GET /tables/count
+  Descripción: Contar mesas. Respuesta: { "count": <long> }
+
+- POST /tables/create/{number}/{capacity}
+  Descripción: Crear mesa con número y capacidad.
+  Path params: number (int), capacity (int)
+  Respuesta: 201 -> Table
+
+- DELETE /tables/delete/{id}
+  Descripción: Eliminar mesa por id.
+
+- PUT /tables/update/{id}/{number}/{capacity}/{available}
+  Descripción: Actualizar mesa (ruta con params). available (boolean)
+
+---
+4) Orders (base: /orders)
+
+- GET /orders/find/{id}
+  Descripción: Obtener orden por id.
+
+- GET /orders/all
+  Descripción: Obtener todas las órdenes.
+
+- GET /orders/count
+  Descripción: Contar órdenes.
+
+- POST /orders/create
+  Descripción: Crear orden. Recibe body JSON con estructura Order.
+  Body (ejemplo):
+    {
+      "nameClient": "Juan Pérez",
+      "numberTable": 2,
+      "products": [
+         { "id": "<productId>", "nameProduct": "...", "price": 25.0, ... } // ProductOrderDTO
+      ],
+      "status": 1, // entero (1: pendiente,2: en_preparacion,3: listo,4: entregado,5: cerrado)
+      "totalPrice": 85.0
+    }
+  Notas: numOrden se asigna automáticamente en create (máximo actual + 1). El controlador valida que no exista una orden activa para la misma mesa (estados 1-3).
+
+- DELETE /orders/delete/{id}
+  Descripción: Eliminar orden por id.
+
+- PUT /orders/update/{id}
+  Descripción: Actualizar orden por id. Recibe body Order (JSON) con fields a actualizar: numberTable, products, status, totalPrice.
+
+- GET /orders/findByTable/{numberTable}
+  Descripción: Obtener órdenes activas por número de mesa (filtra estados 1-4).
+  Path params: numberTable (int)
+
+- GET /orders/findByNumOrden/{numOrden}
+  Descripción: Obtener orden por número de orden (numOrden) sólo si no está cerrada (status != 5).
+  Path params: numOrden (int)
+
+- GET /orders/findAllByTable/{numberTable}
+  Descripción: Obtener todas las órdenes históricas de una mesa (cualquier status).
+
+---
+5) SubCategories (base: /subcategories)
+
+- POST /subcategories/create
+  Descripción: Crear subcategoría.
+  Body JSON esperado:
+    { "nombre": "Sopas", "photoUrl": "https://..." }
+  Respuesta: 201 -> SubCategory (contiene id)
+
+- GET /subcategories/all
+  Descripción: Obtener todas las subcategorías.
+
+- PUT /subcategories/update/{id}
+  Descripción: Actualizar subcategoría por id.
+  Body: SubCategory (nombre, photoUrl)
+
+- DELETE /subcategories/delete/{id}
+  Descripción: Eliminar subcategoría por id.
+  Nota: Actualmente la eliminación es directa; no hay lógica adicional para limpiar referencias en productos (se dejó como diseño discutido).
+
+---
+6) Admin / Test data (base: /admin)
+
+- POST /admin/seed
+  Descripción: Pobla la base de datos con datos de prueba:
+    - crea subcategorías fijas (Sopas, Bebidas Alcohólicas, etc.)
+    - crea mesas 1..8
+    - crea ~20 productos (bebidas/platos) asociados a subcategorías
+    - crea 5 órdenes asignadas a mesas disponibles
+  Body/params: ninguno. Respuesta: JSON con conteos: { subcategories_created, tables_created, products_created, orders_created }
+
+---
+Notas generales:
+- Las respuestas en caso de error devuelven JSON con campo "mensaje" y código HTTP apropiado.
+- Campos de fecha: los modelos usan @CreatedDate y @LastModifiedDate para timestamps automáticos si la auditoría está habilitada.
+- Product.subCategory almacena internamente una lista de ids (List<String>) de SubCategory; el endpoint /products/by-subcategory/{id}?populate=true permite "populear" las subcategorías.
+
+Si quieres, puedo:
+- generar un archivo markdown con ejemplos de requests (curl) para cada endpoint;
+- añadir ejemplos de body JSON más detallados para cada tipo (drink, dish, order);
+- o convertir las rutas a OpenAPI/Swagger yaml automáticamente.
+
+FIN
+

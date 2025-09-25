@@ -5,15 +5,18 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
+import java.util.List;
 
 @Document(collection = "products")
 public abstract class Product { //Entidad que define cada producto de la carta
     @Id
     private String id;
     private String nameProduct; //nombre del producto
+    private String photoUrl; //url de la foto del producto
     private String description; //descripcion del producto
     private double price; //precio del producto
     private String category; //categoria del producto
+    private List<String> subCategory; //ids de subcategorías del producto
     private boolean available; //disponibilidad del producto
 
     @CreatedDate
@@ -25,11 +28,13 @@ public abstract class Product { //Entidad que define cada producto de la carta
     //constructor
     public Product() {}
 
-    public Product(String nameProduct, String description, double price, String category, boolean available) {
+    public Product(String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available) {
         this.nameProduct = nameProduct;
+        this.photoUrl = photoUrl;
         this.description = description;
         this.price = price;
         this.category = category;
+        this.subCategory = subCategory;
         this.available = available;
     }
 
@@ -95,5 +100,18 @@ public abstract class Product { //Entidad que define cada producto de la carta
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<String> getSubCategory() {
+        return subCategory;
+    }
+    public void setSubCategory(List<String> subCategory) {
+        this.subCategory = subCategory;
+    }
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

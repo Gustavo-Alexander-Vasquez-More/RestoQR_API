@@ -1,14 +1,14 @@
 package com.restoqr.restoApi.models;
 
+import java.util.List;
+
 public class Drink extends Product{
     private int stock; //cantidad de bebida disponible
-    private boolean isAlcoholic; //indica si la bebida es alcoholica o no
 
     //constructor
-    public Drink(String nameProduct, String description, double price, boolean available, int stock, boolean isAlcoholic) {
-        super(nameProduct, description, price, "drink", available);
+    public Drink(String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available, int stock) {
+        super(nameProduct, photoUrl, description, price, category, subCategory, available);
         this.stock = stock;
-        this.isAlcoholic = isAlcoholic;
     }
 
     public void setStock(int stock) {
@@ -17,13 +17,5 @@ public class Drink extends Product{
 
     public int getStock() {
         return stock;
-    }
-
-    public void setIsAlcoholic(boolean isAlcoholic) {
-        this.isAlcoholic = isAlcoholic;
-    }
-
-    public boolean isAlcoholic() {
-        return isAlcoholic;
     }
 }

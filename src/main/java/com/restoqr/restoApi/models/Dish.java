@@ -1,24 +1,16 @@
 package com.restoqr.restoApi.models;
 
+import java.util.List;
+
 public class Dish extends Product{
-    private int subcategory; // 1: entrada, 2: plato principal, 3: postre
     private boolean isVegetarian; //indica si el plato es vegetariano o no
 
     //constructor
     public Dish() {}
 
-    public Dish(String nameProduct, String description, double price, boolean available, int subcategory, boolean isVegetarian) {
-        super(nameProduct, description, price, "dish", available);
-        this.subcategory = subcategory;
+    public Dish(String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available, boolean isVegetarian) {
+        super(nameProduct, photoUrl, description, price, category, subCategory, available);
         this.isVegetarian = isVegetarian;
-    }
-
-    public void setSubcategory(int subcategory) {
-        this.subcategory = subcategory;
-    }
-
-    public int getSubcategory() {
-        return subcategory;
     }
 
     public void setIsVegetarian(boolean isVegetarian) {
