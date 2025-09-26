@@ -3,9 +3,9 @@ package com.restoqr.restoApi.dto;
 public class UserDTO {
     private String id;
     private String username;
-    private String role;
+    private int role;
 
-    public UserDTO(String id, String username, String role) {
+    public UserDTO(String id, String username, int role) {
         this.id = id;
         this.username = username;
         this.role = role;
@@ -14,5 +14,5 @@ public class UserDTO {
     // Getters y setters
     public String getId() { return id; }
     public String getUsername() { return username; }
-    public String getRole() { return role; }
+    public int getRole() { return role; }
 }

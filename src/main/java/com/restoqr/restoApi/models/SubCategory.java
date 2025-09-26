@@ -3,12 +3,15 @@ package com.restoqr.restoApi.models;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
 
 public class SubCategory {
     @Id
     private  String id;
+    @Indexed
+    private  String group_id;
     private String nombre; // Nombre de la subcategoría
     private String photoUrl; // URL de la foto representativa
     @CreatedDate
@@ -31,6 +34,15 @@ public class SubCategory {
     public void setId(String id) {
         this.id = id;
     }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
+    }
+
     public String getNombre() {
         return nombre;
     }

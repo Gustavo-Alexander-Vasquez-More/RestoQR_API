@@ -1,7 +1,9 @@
 package com.restoqr.restoApi.controller;
 
 import com.restoqr.restoApi.models.Table;
+import com.restoqr.restoApi.models.User;
 import com.restoqr.restoApi.repositories.TableRepository;
+import com.restoqr.restoApi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,9 @@ import java.util.Optional;
 public class TableController {
     @Autowired
     private TableRepository tableRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/find/{number}")
     public ResponseEntity<?> getTableByNumber(@PathVariable int number) {
@@ -55,15 +60,22 @@ public class TableController {
         }
     }
 
-    @PostMapping("/create/{number}/{capacity}")
-    public ResponseEntity<?> createTable(@PathVariable int number, @PathVariable int capacity) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createTable(@RequestHeader("X-User-Id") String userId, @RequestBody Map<String, Object> payload) {
         try {
-            if (tableRepository.findByNumber(number).isPresent()) {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
                 Map<String, String> response = new HashMap<>();
-                response.put("mensaje", "El número de mesa ya existe.");
-                return ResponseEntity.status(409).body(response);
+                response.put("mensaje", "Usuario no encontrado.");
+                return ResponseEntity.status(404).body(response);
             }
+            String groupId = user.getGroup_id();
+            int number = Integer.parseInt(payload.get("number").toString());
+            int capacity = Integer.parseInt(payload.get("capacity").toString());
+            boolean available = payload.get("available") != null ? Boolean.parseBoolean(payload.get("available").toString()) : true;
             Table table = new Table(number, capacity);
+            table.setAvailable(available);
+            table.setGroup_id(groupId); // Asignar el group_id del usuario
             Table savedTable = tableRepository.save(table);
             return ResponseEntity.status(201).body(savedTable);
         } catch (Exception e) {
@@ -119,4 +131,3 @@ public class TableController {
         }
     }
 }
-

@@ -1,5 +1,6 @@
 package com.restoqr.restoApi.models;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,6 +12,8 @@ import java.util.List;
 public class Order {
     @Id
     private String id;
+    @Indexed
+    private String group_id;
     private String nameClient;
     private int numOrden; //numero de orden
     private int numberTable; //numero de mesa
@@ -48,6 +51,14 @@ public class Order {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
     }
 
     public int getNumberTable() {

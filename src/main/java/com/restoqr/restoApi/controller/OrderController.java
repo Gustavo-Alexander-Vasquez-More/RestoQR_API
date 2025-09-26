@@ -1,7 +1,11 @@
 package com.restoqr.restoApi.controller;
 
 import com.restoqr.restoApi.models.Order;
+import com.restoqr.restoApi.models.Product;
+import com.restoqr.restoApi.models.User;
+import com.restoqr.restoApi.models.ProductOrderDTO;
 import com.restoqr.restoApi.repositories.OrderRepository;
+import com.restoqr.restoApi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +20,9 @@ import java.util.Optional;
 public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/find/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable String id) {
@@ -56,29 +63,49 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createOrder(@RequestBody Order order) {
+    public ResponseEntity<?> createOrder(@RequestHeader("X-User-Id") String userId, @RequestBody Map<String, Object> payload) {
         try {
-            // Validar si ya existe una orden activa para la mesa
-            List<Integer> estadosActivos = List.of(1, 2, 3); // pendiente, en_preparacion, listo
-            List<Order> ordenesActivas = orderRepository.findByNumberTableAndStatusIn(order.getNumberTable(), estadosActivos);
-            if (!ordenesActivas.isEmpty()) {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
                 Map<String, String> response = new HashMap<>();
-                response.put("mensaje", "Ya existe una orden activa para la mesa " + order.getNumberTable());
-                return ResponseEntity.status(409).body(response);
+                response.put("mensaje", "Usuario no encontrado.");
+                return ResponseEntity.status(404).body(response);
             }
-            System.out.println("Order recibida: " + order);
-            // Obtener el máximo numOrden actual y sumarle 1
-            Integer maxNumOrden = orderRepository.findAll().stream()
-                .map(Order::getNumOrden)
-                .max(Integer::compareTo)
-                .orElse(0);
-            order.setNumOrden(maxNumOrden + 1);
+            String groupId = user.getGroup_id();
+            int numberTable = Integer.parseInt(payload.get("numberTable").toString());
+            List<Map<String, Object>> productsPayload = (List<Map<String, Object>>) payload.get("products");
+            List<ProductOrderDTO> products = new java.util.ArrayList<>();
+            if (productsPayload != null) {
+                for (Map<String, Object> prodMap : productsPayload) {
+                    ProductOrderDTO dto = new ProductOrderDTO();
+                    dto.setId((String) prodMap.get("id"));
+                    dto.setNameProduct((String) prodMap.get("nameProduct"));
+                    dto.setDescription((String) prodMap.get("description"));
+                    dto.setPrice(Double.parseDouble(prodMap.get("price").toString()));
+                    dto.setCategory((String) prodMap.get("category"));
+                    dto.setAvailable(Boolean.parseBoolean(prodMap.get("available").toString()));
+                    if (prodMap.containsKey("stock")) {
+                        dto.setStock(Integer.parseInt(prodMap.get("stock").toString()));
+                    }
+                    if (prodMap.containsKey("isVegetarian")) {
+                        dto.setIsVegetarian(Boolean.parseBoolean(prodMap.get("isVegetarian").toString()));
+                    }
+                    products.add(dto);
+                }
+            }
+            int status = Integer.parseInt(payload.get("status").toString());
+            double totalPrice = Double.parseDouble(payload.get("totalPrice").toString());
+            Order order = new Order();
+            order.setNumberTable(numberTable);
+            order.setProducts(products);
+            order.setStatus(status);
+            order.setTotalPrice(totalPrice);
+            order.setGroup_id(groupId); // Asignar el group_id del usuario
             Order savedOrder = orderRepository.save(order);
             return ResponseEntity.status(201).body(savedOrder);
         } catch (Exception e) {
-            e.printStackTrace(); // Log completo del error en consola
             Map<String, String> response = new HashMap<>();
-            response.put("mensaje", "No se pudo crear la orden: " + e.getMessage());
+            response.put("mensaje", "No se pudo crear la orden.");
             return ResponseEntity.status(500).body(response);
         }
     }

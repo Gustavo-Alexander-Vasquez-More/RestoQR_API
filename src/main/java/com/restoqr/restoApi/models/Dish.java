@@ -8,8 +8,8 @@ public class Dish extends Product{
     //constructor
     public Dish() {}
 
-    public Dish(String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available, boolean isVegetarian) {
-        super(nameProduct, photoUrl, description, price, category, subCategory, available);
+    public Dish(String group_id, String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available, boolean isVegetarian) {
+        super(group_id, nameProduct, photoUrl, description, price, category, subCategory, available);
         this.isVegetarian = isVegetarian;
     }
 

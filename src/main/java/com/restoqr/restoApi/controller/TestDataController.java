@@ -63,10 +63,11 @@ public class TestDataController {
                 // Asignar subcategoría aleatoria de bebidas
                 prodSubcats.add(subCategories.get(rnd.nextInt(3)).getId()); // 0-2: Bebidas
                 Drink d = new Drink(
+                    null, // id generado por MongoDB
                     name,
                     photoUrl,
                     "Bebida refrescante",
-                    10 + rnd.nextInt(40),
+                    (double) (10 + rnd.nextInt(40)),
                     "drink",
                     prodSubcats,
                     true,
@@ -79,10 +80,11 @@ public class TestDataController {
                 // Asignar subcategoría aleatoria de platos
                 prodSubcats.add(subCategories.get(3 + rnd.nextInt(subCategories.size()-3)).getId()); // 3+: Platos
                 Dish dish = new Dish(
+                    null,
                     name,
                     photoUrl,
                     "Delicioso plato",
-                    30 + rnd.nextInt(120),
+                    (double) (30 + rnd.nextInt(120)),
                     "dish",
                     prodSubcats,
                     true,

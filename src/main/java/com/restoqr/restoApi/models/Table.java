@@ -3,6 +3,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
 
@@ -10,6 +11,8 @@ import java.time.Instant;
 public class Table { //Entidad que define cada mesa del restaurante
     @Id
     private String id;
+    @Indexed
+    private String group_id;
     private int number; //numero de mesa
     private int capacity; //capacidad de la mesa
     private boolean available = true; // Por defecto true
@@ -34,6 +37,14 @@ public class Table { //Entidad que define cada mesa del restaurante
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
     }
 
     public int getNumber() {

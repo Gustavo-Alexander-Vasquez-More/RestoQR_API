@@ -1,0 +1,149 @@
+ENDPOINTS - Usuarios (RESTO API)
+
+Resumen rápido
+- Superadmin group_id fijo (actual): 68d6e7beca5d0dead320d4ca
+- Roles (numérico): 1 = ADMIN, 2 = EMPLOYEE, 3 = USER
+- Content-Type: application/json (para POST/PUT con body)
+- Nota: las contraseñas se guardan hasheadas (PasswordEncoder). Recomendado: usar DTOs en respuestas para NO exponer hashes.
+
+----------------------------------------
+A) ENDPOINTS PARA ADMINISTRADORES DE GRUPO (NO superadmin)
+Condición de acceso: el `user_id` del requester debe existir, tener role == 1 (ADMIN) y pertenecer al mismo group_id. Los administradores pueden operar solo sobre usuarios de su propio grupo (excepto superadmin que puede ver todo).
+
+1) Listar usuarios del grupo
+- MÉTODO: GET
+- RUTA: /users/group/{group_id}/user/{user_id}
+- PATH PARAMS:
+  - group_id: id del grupo a listar
+  - user_id: id del admin que solicita (debe ser role=1 y pertenecer al group)
+- HEADERS: ninguno obligatorio
+- BODY: none
+- RESPUESTAS:
+  - 200 OK: lista de UserDTO (id, username, role)
+  - 403 Forbidden: si no es admin o no pertenece al grupo
+  - 404 Not Found: si requester no existe
+- CURL ejemplo:
+  curl -X GET "http://localhost:8080/users/group/ID_GRUPO/user/ID_ADMIN"
+
+2) Buscar usuario por username (solo en su grupo)
+- MÉTODO: GET
+- RUTA: /users/find/{username}/group/{group_id}/user/{user_id}
+- PATH PARAMS: username, group_id, user_id
+- RESPUESTAS:
+  - 200 OK: UserDTO
+  - 403: acceso denegado
+  - 404: no existe requester o usuario buscado
+- CURL ejemplo:
+  curl -X GET "http://localhost:8080/users/find/pepito/group/ID_GRUPO/user/ID_ADMIN"
+
+3) Contar usuarios del grupo
+- MÉTODO: GET
+- RUTA: /users/count/group/{group_id}/user/{user_id}
+- RESPUESTAS: { "count": N }
+
+4) Verificar existencia por id (solo su grupo)
+- MÉTODO: GET
+- RUTA: /users/exists/{id}/group/{group_id}/user/{user_id}
+- RESPUESTA: { "exists": true|false }
+
+5) Crear usuario (el nuevo usuario HEREDA el group_id del creador)
+- MÉTODO: POST
+- RUTA: /users/create/user/{user_id}
+- HEADERS: Content-Type: application/json
+- BODY (JSON) ejemplo:
+  {
+    "username": "empleado01",
+    "password": "Secreto123",
+    "role": 2
+  }
+- COMPORTAMIENTO: el controlador toma el group_id del creador y lo asigna al nuevo usuario; password se hashea.
+- RESPUESTAS:
+  - 201 Created: devuelve el User (o UserDTO si se cambia)
+  - 403: si el creador no es admin
+  - 404: si creator no existe
+  - 409: si el username ya existe
+- CURL ejemplo:
+  curl -X POST "http://localhost:8080/users/create/user/ID_ADMIN" \
+    -H "Content-Type: application/json" \
+    -d '{"username":"empleado01","password":"Secreto123","role":2}'
+
+6) Eliminar usuario (solo si pertenece al mismo grupo)
+- MÉTODO: DELETE
+- RUTA: /users/delete/{id}/group/{group_id}/user/{user_id}
+- RESPUESTAS: 200 OK / 403 / 404
+
+7) Actualizar usuario (solo si pertenece al mismo grupo)
+- MÉTODO: PUT
+- RUTA: /users/update/{id}/{username}/{password}/{role}/group/{group_id}/user/{user_id}
+- Nota: role es numérico
+- RESPUESTAS: 200 OK / 403 / 404 / 409
+
+----------------------------------------
+B) ENDPOINTS PARA SUPERADMIN (group_id = 68d6e7beca5d0dead320d4ca)
+Condición de acceso: el requester (super_user_id) debe existir y su group_id debe ser el superadmin id. Estos endpoints permiten operar sobre cualquier usuario y crear usuarios en cualquier group_id.
+
+1) Listar todos los usuarios (superadmin)
+- MÉTODO: GET
+- RUTA: /users/super/all/{super_user_id}
+- RESPUESTA: 200 OK lista UserDTO
+- CURL ejemplo:
+  curl -X GET "http://localhost:8080/users/super/all/68d6e7beca5d0dead320d4ca"
+
+2) Crear usuario y asignar cualquier group_id (superadmin)
+- MÉTODO: POST
+- RUTA: /users/super/create/{super_user_id}/{target_group_id}
+- HEADERS: Content-Type: application/json
+- BODY ejemplo:
+  {
+    "username":"pepito",
+    "password":"Secreto123",
+    "role":2
+  }
+- RESPUESTAS: 201 Created (UserDTO)
+- CURL ejemplo:
+  curl -X POST "http://localhost:8080/users/super/create/68d6e7beca5d0dead320d4ca/TARGET_GROUP_ID" \
+    -H "Content-Type: application/json" -d '{"username":"pepito","password":"Secreto123","role":2}'
+
+3) Buscar usuario por id (superadmin)
+- MÉTODO: GET
+- RUTA: /users/super/find/{id}/{super_user_id}
+
+4) Eliminar cualquier usuario (superadmin)
+- MÉTODO: DELETE
+- RUTA: /users/super/delete/{id}/{super_user_id}
+
+5) Actualizar cualquier usuario (incluye cambiar group_id)
+- MÉTODO: PUT
+- RUTA: /users/super/update/{id}/{username}/{password}/{role}/{new_group_id}/{super_user_id}
+- EJEMPLO:
+  PUT http://localhost:8080/users/super/update/ID_USUARIO/nuevo/npass/2/NUEVO_GROUP/68d6e7beca5d0dead320d4ca
+
+----------------------------------------
+RESPUESTAS COMUNES / CÓDIGOS HTTP
+- 200 OK: operación exitosa (lista o mensaje)
+- 201 Created: recurso creado (POST)
+- 400 Bad Request: datos inválidos (campo faltante, role inválido)
+- 401 Unauthorized: si habilitas auth y la petición no está autenticada
+- 403 Forbidden: acceso denegado por roles/grupos
+- 404 Not Found: recurso o requester no encontrado
+- 409 Conflict: nombre de usuario ya existe
+- 500 Internal Server Error: error inesperado del servidor
+
+CONSIDERACIONES / RECOMENDACIONES
+- Actualmente el sistema recibe `user_id`/`group_id` por la ruta para validar; en producción se recomienda usar JWT para autenticar y extraer el userId del token, evitando confiar en parámetros del cliente.
+- Recomendable: homogeneizar respuestas para que NUNCA devuelvan el campo `password` ni siquiera hasheado. Mejor devolver siempre `UserDTO`.
+- Validaciones: comprobar longitud mínima de password, unicidad de username (repositorio debe validar), formato del group_id si aplica.
+- Para pruebas en Postman: siempre usar Content-Type: application/json en POST; incluir datos correctos de creator (user_id) que existan en la BD y tengan role==1 donde se requiera.
+
+PRUEBAS SUGERIDAS (orden)
+1) Crear un superadmin en BD o usar el id hardcodeado (68d6e7...) si ya existe.
+2) Como superadmin: POST /users/super/create/... para añadir usuarios en distintos group_id.
+3) Como admin de grupo: usar su id para probar crear usuarios en SU group, listar y buscar dentro de su group.
+4) Probar que admin de grupo NO puede listar usuarios de otro group (debe 403).
+5) Como superadmin: actualizar/eliminar usuarios de cualquier group (debe funcionar).
+
+Archivo generado: ENDPOINTS_USERS.txt
+Ubicación: /home/phantomroot/Projects/My-Personal-Projects/restoQR/restoApi/ENDPOINTS_USERS.txt
+
+Fin del documento.
+

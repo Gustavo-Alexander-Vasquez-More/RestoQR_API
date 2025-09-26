@@ -6,6 +6,8 @@ import com.restoqr.restoApi.models.Dish;
 import com.restoqr.restoApi.models.SubCategory;
 import com.restoqr.restoApi.repositories.ProductRepository;
 import com.restoqr.restoApi.repositories.SubCategoryRepository;
+import com.restoqr.restoApi.repositories.UserRepository;
+import com.restoqr.restoApi.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +27,19 @@ public class ProductoController {
     @Autowired
     private SubCategoryRepository subCategoryRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> createProduct(@RequestHeader("X-User-Id") String userId, @RequestBody Map<String, Object> payload) {
         try {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("mensaje", "Usuario no encontrado.");
+                return ResponseEntity.status(404).body(response);
+            }
+            String groupId = user.getGroup_id();
             String category = (String) payload.get("category");
             String photoUrl = (String) payload.get("photoUrl");
             List<Map<String, Object>> subCategoryList = (List<Map<String, Object>>) payload.get("subCategory");
@@ -50,6 +62,7 @@ public class ProductoController {
             Product product;
             if ("drink".equalsIgnoreCase(category)) {
                 product = new Drink(
+                        null,
                         (String) payload.get("nameProduct"),
                         photoUrl,
                         (String) payload.get("description"),
@@ -61,6 +74,7 @@ public class ProductoController {
                 );
             } else if ("dish".equalsIgnoreCase(category)) {
                 product = new Dish(
+                        null,
                         (String) payload.get("nameProduct"),
                         photoUrl,
                         (String) payload.get("description"),
@@ -72,6 +86,7 @@ public class ProductoController {
                 );
             } else {
                 product = new Product(
+                        null,
                         (String) payload.get("nameProduct"),
                         photoUrl,
                         (String) payload.get("description"),
@@ -81,6 +96,7 @@ public class ProductoController {
                         Boolean.parseBoolean(payload.get("available").toString())
                 ) {};
             }
+            product.setGroup_id(groupId); // Asignar el group_id del usuario
             Product savedProduct = productRepository.save(product);
             return ResponseEntity.status(201).body(savedProduct);
         } catch (Exception e) {

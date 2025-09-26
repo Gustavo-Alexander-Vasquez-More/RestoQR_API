@@ -1,5 +1,6 @@
 package com.restoqr.restoApi.models;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,6 +12,8 @@ import java.util.List;
 public abstract class Product { //Entidad que define cada producto de la carta
     @Id
     private String id;
+    @Indexed
+    private String group_id;
     private String nameProduct; //nombre del producto
     private String photoUrl; //url de la foto del producto
     private String description; //descripcion del producto
@@ -28,7 +31,8 @@ public abstract class Product { //Entidad que define cada producto de la carta
     //constructor
     public Product() {}
 
-    public Product(String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available) {
+    public Product(String group_id, String nameProduct, String photoUrl, String description, double price, String category, List<String> subCategory, boolean available) {
+        this.group_id = group_id;
         this.nameProduct = nameProduct;
         this.photoUrl = photoUrl;
         this.description = description;
@@ -44,6 +48,14 @@ public abstract class Product { //Entidad que define cada producto de la carta
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
     }
 
     public String getNameProduct() {
